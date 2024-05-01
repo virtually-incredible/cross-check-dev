@@ -1,3 +1,7 @@
+function castToIso8601d(date, tz) {
+  return Utilities.formatDate(date, tz, 'YYYY-MM-dd');
+}
+
 function ordinalSuffixOf(i) {
   let j = i % 10,
     k = i % 100;

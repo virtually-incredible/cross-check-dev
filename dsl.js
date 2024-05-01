@@ -1,5 +1,6 @@
-function collectData() {
-  const year = new Date().getFullYear();
+function collectData(today = new Date()) {
+  const todayIso8601d = today.toISOString().split('T')[0];
+  const year = today.getFullYear();
   const statusesRegex = get.accountableStatusesRegex(get.sheet('accountable statuses'));
   const adapters = get.adapters(get.sheet('adapters'));
   const source_sheet = get.sheet('sources');
@@ -18,6 +19,7 @@ function collectData() {
   let ss, url;
   url = zs.filter(x => x['Department'] === 'VAS')[0]['Url'];
   ss = SpreadsheetApp.openByUrl(url);
+  const tz = ss.getSpreadsheetTimeZone();
   const xs = ssa.get_vh(get.sheet('VA sources'));
   const vaMap = get.nameToVaMap(ss, xs, year, adapters).right;
   //TODO: process failure
@@ -39,7 +41,10 @@ function collectData() {
         if (subscriptions === 'VSS+VAS') subscriptions = 'VAS+VSS';
       }
       if (vaMap[company_name]) {
-        agents = vaMap[company_name].length;
+        const active_agents = vaMap[company_name].filter(x => {
+          return castToIso8601d(x.date, tz) <= todayIso8601d;
+        });
+        agents = active_agents.length;
       }
     }
     res[company_name] = {subscriptions, agents};
