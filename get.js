@@ -1,5 +1,32 @@
 var get = {};
 
+
+get.subscriptionMap = function(source_sheet = get.sheet('sources'), status_sheet = get.sheet('accountable statuses'), adapter_sheet = get.sheet('adapters')) {
+  const statusesRegex = get.accountableStatusesRegex(status_sheet);
+  const adapters = get.adapters(adapter_sheet);
+  const {depMap, servicesCodesMap, pivotTableCodesMap } = get.departmentsMap(source_sheet, adapters, year, statusesRegex);
+  const subMap = {};
+  _.keys(pivotTableCodesMap).forEach(code => {
+    blow(subMap, code, []);
+    for (const name in servicesCodesMap) {
+      const codeMap = servicesCodesMap[name];
+      if (def(codeMap[code])) {
+        subMap[code].push(depMap[name]);
+      }
+    }
+  });
+  return subMap;
+}
+
+get.vaMap = function(source_sheet = get.sheet('sources'), va_source_sheet = get.sheet('VA sources')) {
+  const zs = ssa.get_vh(source_sheet);
+  const url = zs.filter(x => x['Department'] === 'VAS')[0]['Url'];
+  const ss = SpreadsheetApp.openByUrl(url);
+  const xs = ssa.get_vh(va_source_sheet);
+  const attempt = get.nameToVaMap(ss, xs, year, adapters);
+  return attempt;
+}
+
 get.originalMap = function(sources) {
   const x = sources.filter(x => x['Department'] === 'HQ')[0];
   const ss = SpreadsheetApp.openByUrl(x['Url']);
