@@ -1,33 +1,30 @@
 function collectData(today = new Date()) {
   const todayIso8601d = today.toISOString().split('T')[0];
   const year = today.getFullYear();
-  const statusesRegex = get.accountableStatusesRegex(get.sheet('accountable statuses'));
-  const adapters = get.adapters(get.sheet('adapters'));
+  const status_sheet = get.sheet('accountable statuses');
+  const statusesRegex = get.accountableStatusesRegex(status_sheet);
+  const adapter_sheet = get.sheet('adapters');
+  const adapters = get.adapters(adapter_sheet);
   const source_sheet = get.sheet('sources');
   const zs = ssa.get_vh(source_sheet);
-  const {depMap, servicesCodesMap, pivotTableCodesMap } = get.departmentsMap(source_sheet, adapters, year, statusesRegex);
-  const subMap = {};
-  _.keys(pivotTableCodesMap).forEach(code => {
-    blow(subMap, code, []);
-    for (const name in servicesCodesMap) {
-      const codeMap = servicesCodesMap[name];
-      if (def(codeMap[code])) {
-        subMap[code].push(depMap[name]);
-      }
-    }
-  });
-  let ss, url;
-  url = zs.filter(x => x['Department'] === 'VAS')[0]['Url'];
+  const subMap = get.subscriptionMap({source_sheet, statusesRegex, adapters, year});
+
+  let ss, url, x, sheet, tab;
+  x = zs.filter(x => x['Department'] === 'VAS')[0];
+  url = x['Url'];
   ss = SpreadsheetApp.openByUrl(url);
   const tz = ss.getSpreadsheetTimeZone();
   const xs = ssa.get_vh(get.sheet('VA sources'));
   const vaMap = get.nameToVaMap(ss, xs, year, adapters).right;
   //TODO: process failure
+  tab = x['Tab name'].replace('{{Year}}', year);
+  sheet = ss.getSheetByName(tab);
+  const statusMap = get.statusMap(sheet, a1_to_n(x['Data row']) - 1, a1_to_n(x['Ancor column']) - 1, a1_to_n(x['Status column']) - 1, statusesRegex);
 
-  const x =  zs.filter(x => x['Department'] === 'HQ')[0];
-  const tab = x['Tab name'];
+  x =  zs.filter(x => x['Department'] === 'HQ')[0];
+  tab = x['Tab name'];
   ss = SpreadsheetApp.openByUrl(x['Url']);
-  const sheet = ss.getSheetByName(tab);
+  sheet = ss.getSheetByName(tab);
   const idx = a1_to_n(x['Ancor column']) - 1;
   const cs = sheet.getDataRange().getValues().slice(x['Data row'] - 1).map(r => r[idx].trim());
   const res = {};
@@ -47,7 +44,7 @@ function collectData(today = new Date()) {
         agents = active_agents.length;
       }
     }
-    res[company_name] = {subscriptions, agents};
+    res[company_name] = {subscriptions, agents, status : statusMap[company_name]};
   });
   return res;
 }

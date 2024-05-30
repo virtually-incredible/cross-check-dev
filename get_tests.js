@@ -8,6 +8,42 @@ function get_module_tests() {
 
 }
 
+function test_get_subscription_map() {
+  return jUnit.test_case('', {
+    'test getting subscription map' : function() {
+      const source_sheet = tt.ds('0.6');
+      const status_sheet = tt.ds('0.2');
+      const adapter_sheet = tt.ds('0.5');
+      const adapters = get.adapters(adapter_sheet);
+      const statusesRegex = get.accountableStatusesRegex(status_sheet);
+      const FULL_SUB = ['PT', 'VSS', 'VAS'];
+      const PT_VSS = ['PT', 'VSS'];
+      const PT_ONLY = ['PT'];
+      const VSS_ONLY = ['VSS'];
+      const VAS_ONLY = ['VAS'];
+      const res = get.subscriptionMap({source_sheet, statusesRegex, adapters, year : 2024});
+      jUnit.assert_eq_num(241, _.keys(res).length);
+      jUnit.assert_eq_num(0, _.difference(res['Home Property Management'], FULL_SUB).length);
+      jUnit.assert_eq_num(0, _.difference(res['1836 Property Management'], PT_VSS).length);
+      jUnit.assert_eq_num(0, _.difference(res['Real Estate Opportunities'], PT_ONLY).length);
+      jUnit.assert_eq_num(0, _.difference(res['Innovative Property Solutions'], VSS_ONLY).length);
+      jUnit.assert_eq_num(0, _.difference(res['Pointer Ridge Management'], VAS_ONLY).length);
+    }
+  });
+}
+
+function test_get_status_map() {
+  return jUnit.test_case('', {
+    'test getting status map' : function() {
+      const sheet = tt.ds('0.4');
+      const statusesRegex = get.accountableStatusesRegex(tt.ds('0.2'));
+      const res = get.statusMap(sheet, 4, a1_to_n('D') - 1, a1_to_n('B') - 1, statusesRegex);
+      jUnit.assert_eq_num(66, _.keys(res).length);
+      jUnit.assert_eq('Active', res['Home Property Management']);
+    }
+  });
+}
+
 function test_get_original_map() {
   return jUnit.test_case('', {
     'test getting map of main tracker values' : function() {

@@ -1,9 +1,19 @@
 var get = {};
 
+get.statusMap = function(sheet, data_row, ancor_idx, status_idx, statusRegex) {
+  const m  = sheet.getDataRange().getValues().slice(data_row - 1);
+  const res = {};
+  m.forEach(r => {
+    const company_name = r[ancor_idx].trim();
+    const status = r[status_idx];
+    if (statusRegex.test(status)) {
+      res[company_name] = status;
+    }
+  });
+  return res;
+};
 
-get.subscriptionMap = function(source_sheet = get.sheet('sources'), status_sheet = get.sheet('accountable statuses'), adapter_sheet = get.sheet('adapters')) {
-  const statusesRegex = get.accountableStatusesRegex(status_sheet);
-  const adapters = get.adapters(adapter_sheet);
+get.subscriptionMap = function({source_sheet = get.sheet('sources'), statusesRegex, adapters, year}) {
   const {depMap, servicesCodesMap, pivotTableCodesMap } = get.departmentsMap(source_sheet, adapters, year, statusesRegex);
   const subMap = {};
   _.keys(pivotTableCodesMap).forEach(code => {
@@ -16,7 +26,7 @@ get.subscriptionMap = function(source_sheet = get.sheet('sources'), status_sheet
     }
   });
   return subMap;
-}
+};
 
 get.vaMap = function(source_sheet = get.sheet('sources'), va_source_sheet = get.sheet('VA sources')) {
   const zs = ssa.get_vh(source_sheet);
@@ -25,7 +35,7 @@ get.vaMap = function(source_sheet = get.sheet('sources'), va_source_sheet = get.
   const xs = ssa.get_vh(va_source_sheet);
   const attempt = get.nameToVaMap(ss, xs, year, adapters);
   return attempt;
-}
+};
 
 get.originalMap = function(sources) {
   const x = sources.filter(x => x['Department'] === 'HQ')[0];
