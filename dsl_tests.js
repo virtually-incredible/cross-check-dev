@@ -3,6 +3,14 @@ function dsl_module_tests() {
 
 }
 
+function test_check_consistency() {
+  return jUnit.test_case('', {
+    'test checking consistency' : function() {
+      checkConsistency();
+    }
+  });
+}
+
 function test_collect_data() {
   return jUnit.test_case('', {
     'test collecting overall data' : function() {

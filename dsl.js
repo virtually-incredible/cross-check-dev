@@ -36,6 +36,9 @@ function collectData({today = new Date(), status_sheet = get.sheet('accountable 
       }
       if (vaMap[company_name]) {
         const active_agents = vaMap[company_name].filter(x => {
+          if (typeof x.date === 'string') {
+            return false;
+          }
           return castToIso8601d(x.date, tz) <= todayIso8601d;
         });
         agents = active_agents.length;
@@ -56,7 +59,9 @@ function checkConsistency() {
   const {depMap, servicesCodesMap, pivotTableCodesMap } = res;
   const m = _.keys(servicesCodesMap).map(serviceName => {
     const codes = _.keys(servicesCodesMap[serviceName]);
-    return codes.map(code => [ndef(pivotTableCodesMap[code]), serviceName, code]).filter(p => p[0]).map(p => p.slice(1));
+    return codes.map(code => {
+      return [ndef(pivotTableCodesMap[code]), serviceName, code];
+    }).filter(p => p[0]).map(p => p.slice(1));
   }).flat();
   const sourcesMap = get.sourcesMap(sheet);
   const m_ = m.map(r => {
@@ -69,5 +74,10 @@ function checkConsistency() {
   dest_sheet.clear();
   m_.unshift(['Tracker', 'Company name', 'Adapter']);
   dest_sheet.getRange(1, 1, m_.length, m_[0].length).setValues(m_);
-  if (m_.length > 1) ss.toast('Some inconsistency in company names detected. Please check "consistency" tab');
+  if (m_.length > 1) {
+    ss.toast('Some inconsistency in company names detected. Please check "consistency" tab');
+    return false;
+  } else {
+    return true;
+  }
 }

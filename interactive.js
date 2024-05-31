@@ -8,8 +8,9 @@ function onOpen() {
 }
 
 function get_changes() {
-  checkConsistency();
-  displayChanges();
+  if (checkConsistency()) {
+    displayChanges();
+  }
 }
 
 function apply_changes() {
