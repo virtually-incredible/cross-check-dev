@@ -22,5 +22,7 @@ function get_changes() {
 }
 
 function apply_changes() {
-  applyChanges();
+  if (checkConsistency()) {
+    applyChanges();
+  }
 }
