@@ -13,7 +13,7 @@ get.statusMap = function(sheet, data_row, ancor_idx, status_idx, statusRegex) {
   return res;
 };
 
-get.subscriptionMap = function({source_sheet = get.sheet('sources'), statusesRegex, adapters, year}) {
+get.subscriptionMap = function({source_sheet, statusesRegex, adapters, year}) {
   const {depMap, servicesCodesMap, pivotTableCodesMap } = get.departmentsMap(source_sheet, adapters, year, statusesRegex);
   const subMap = {};
   _.keys(pivotTableCodesMap).forEach(code => {
@@ -98,7 +98,6 @@ get.codeToVaMap = function(va_sheet, data_row) {
 };
 
 get.departmentsMap = function(sheet, adapters, year, statusesRegex) {
-  sheet = sheet || get.sheet('sources');
   const xs = ssa.get_vh(sheet);
   const depMap = {};
   let servicesCodesMap = {};
