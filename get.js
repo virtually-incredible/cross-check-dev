@@ -107,7 +107,7 @@ get.departmentsMap = function(sheet, adapters, year, statusesRegex) {
     const source_sheet = ss.getSheetByName(x['Tab name'].replace('{{Year}}', year));
     let m = source_sheet.getDataRange().getValues().slice(x['Data row'] - 1);
     if (!x['Pivot']) {
-      m = m.filter(r => statusesRegex.test(r[1]));
+      m = m.filter(r => statusesRegex.test(r[1].trim()));
     }
     const idx = a1_to_n(x['Ancor column']) - 1;
     let ps = m.map((r, i)  => [r[idx].trim(), i]).filter(p => p[0] !== '');
