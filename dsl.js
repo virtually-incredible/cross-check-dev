@@ -1,3 +1,72 @@
+function applyChanges(results) {
+  results = results || collectData({});
+  const originSheet = get.sheet('VI Subscriptions');
+  const originM = originSheet.getDataRange().getValues().slice(1);
+  const statusRegex = get.accountableStatusesRegex(get.sheet('credit exclusions'));
+  //TODO: get columns from sources
+  const subCol = a1_to_n('E');
+  const vaCol = a1_to_n('H');
+  const vaCreditCol = a1_to_n('I');
+  originM.forEach((r, i) => {
+    const row = i + 2;
+    const company_name = r[2].trim();
+    if (company_name === '') return;
+    if (results[company_name].subscriptions !== undefined) {
+      originSheet.getRange(row, subCol).setValue(results[company_name].subscriptions);
+    };
+    if (results[company_name].agents) {
+      originSheet.getRange(row, vaCol).setValue(results[company_name].agents);
+    };
+    const vaStatus = results[company_name].status ? results[company_name].status : '';
+    if (statusRegex.test(vaStatus)) {
+      originSheet.getRange(row, vaCreditCol).setValue(0);
+    } else {
+      originSheet.getRange(row, vaCreditCol).setValue(`=${n_to_a1(vaCol)}${row}*${VA_COST}`);
+    }
+  });
+}
+
+//::{<CompanyName>:{subscriptions, agents, status}}
+function displayChanges(results) {
+  results = results || collectData({});
+  const originSheet = get.sheet('VI Subscriptions');
+  const originM = originSheet.getDataRange().getValues().slice(1);
+  //TODO: get columns from sources
+  const subIdx = a1_to_n('E') - 1;
+  const vaIdx = a1_to_n('H') - 1;
+  const m = originM.map((r, i) => {
+    const company_name = r[2].trim();
+    if (company_name === '') return null;
+    let res = [company_name];
+    let changed = false;
+    const originSubscriptions = originM[i][subIdx].trim();
+    const currentSubscritions = results[company_name].subscriptions;
+    if (originSubscriptions !== currentSubscritions) {
+      changed = true;
+      res = res.concat([originSubscriptions, currentSubscritions]);
+    } else {
+      res = res.concat(['', '']);
+    }
+    const originVa = originM[i][vaIdx];
+    const currentVa = results[company_name].agents;
+    if (originVa !== currentVa) {
+      changed = true;
+      res = res.concat([originVa, currentVa]);
+    } else {
+      res = res.concat(['', '']);
+    }
+    return changed ? res : null;
+  }).filter(x => x);
+  const dest_sheet = get.sheet('changes');
+  const last_row = dest_sheet.getLastRow();
+  if (last_row > 1) {
+    dest_sheet.getRange(2, 1, last_row - 1, dest_sheet.getLastColumn()).clear();
+  }
+  if (m.length > 0) {
+    dest_sheet.getRange(2, 1, m.length, m[0].length).setValues(m);
+  }
+}
+
 function collectData({today = new Date(), status_sheet = get.sheet('accountable statuses'), adapter_sheet = get.sheet('adapters'),source_sheet = get.sheet('sources'), va_source_sheet = get.sheet('VA sources')} ) {
   const todayIso8601d = today.toISOString().split('T')[0];
   const year = today.getFullYear();
