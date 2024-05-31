@@ -1,11 +1,8 @@
-function collectData(today = new Date()) {
+function collectData({today = new Date(), status_sheet = get.sheet('accountable statuses'), adapter_sheet = get.sheet('adapters'),source_sheet = get.sheet('sources'), va_source_sheet = get.sheet('VA sources')} ) {
   const todayIso8601d = today.toISOString().split('T')[0];
   const year = today.getFullYear();
-  const status_sheet = get.sheet('accountable statuses');
   const statusesRegex = get.accountableStatusesRegex(status_sheet);
-  const adapter_sheet = get.sheet('adapters');
   const adapters = get.adapters(adapter_sheet);
-  const source_sheet = get.sheet('sources');
   const zs = ssa.get_vh(source_sheet);
   const subMap = get.subscriptionMap({source_sheet, statusesRegex, adapters, year});
 
@@ -14,12 +11,12 @@ function collectData(today = new Date()) {
   url = x['Url'];
   ss = SpreadsheetApp.openByUrl(url);
   const tz = ss.getSpreadsheetTimeZone();
-  const xs = ssa.get_vh(get.sheet('VA sources'));
+  const xs = ssa.get_vh(va_source_sheet);
   const vaMap = get.nameToVaMap(ss, xs, year, adapters).right;
   //TODO: process failure
   tab = x['Tab name'].replace('{{Year}}', year);
   sheet = ss.getSheetByName(tab);
-  const statusMap = get.statusMap(sheet, a1_to_n(x['Data row']) - 1, a1_to_n(x['Ancor column']) - 1, a1_to_n(x['Status column']) - 1, statusesRegex);
+  const statusMap = get.statusMap(sheet, x['Data row'], a1_to_n(x['Ancor column']) - 1, a1_to_n(x['Status column']) - 1, statusesRegex);
 
   x =  zs.filter(x => x['Department'] === 'HQ')[0];
   tab = x['Tab name'];

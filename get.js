@@ -5,7 +5,7 @@ get.statusMap = function(sheet, data_row, ancor_idx, status_idx, statusRegex) {
   const res = {};
   m.forEach(r => {
     const company_name = r[ancor_idx].trim();
-    const status = r[status_idx];
+    const status = r[status_idx].trim();
     if (statusRegex.test(status)) {
       res[company_name] = status;
     }
