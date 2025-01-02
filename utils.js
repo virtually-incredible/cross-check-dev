@@ -1,3 +1,26 @@
+function parseIso8601d(s) {
+  return s.split("-").map(Number)
+}
+
+function validateDate(string) {
+  const arr = string.split("-");
+  if (arr.length !== 3) return null;
+  const year = Number(arr[0]);
+  if (isNaN(year)) return null;
+  if (year < 2020) return null;
+  const month = Number(arr[1]);
+  if (isNaN(month)) return null;
+  if (month < 1 || month > 12) return null;
+  const day = Number(arr[2]);
+  if (isNaN(day)) return null;
+  if (day < 1 || day > 31) return null;
+  const date = new Date(year, month - 1, day);
+  if (year === date.getFullYear() && month === date.getMonth() + 1 && day === date.getDate()) {
+    return `${year}-${lz(month)}-${lz(day)}`
+  }
+  return null;
+}
+
 function castToIso8601d(date, tz) {
   return Utilities.formatDate(date, tz, 'YYYY-MM-dd');
 }
@@ -170,7 +193,7 @@ div = function(x, n) {return Math.floor(x / n);};
 l4z = function(x) {return ('000' + x).substr(-4);};
 
 //::String->String
-lz = function(x) {return ('00' + x).substring(-2);};
+lz = function(x) {return x.toString().padStart(2, '0')};
 
 function trim(x) {return x.trim();}
 

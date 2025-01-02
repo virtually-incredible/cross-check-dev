@@ -1,5 +1,30 @@
-function applyChanges(results) {
-  results = results || collectData({});
+function optionalDataCollection(arg, iso8601d) {
+  if (arg) {
+    return {right: arg}
+  } else {
+    var attempt = collectData({today:iso8601d});
+    if (attempt.left) {
+      let message;
+      const {type, data, assistantTabName, clientTabName} = attempt.left;
+      if (type === 'VA') {
+        message = `
+        VA service error:
+        \\nfollowing codes from '${assistantTabName}' \\n ${attempt.left.data.join("\\n")}
+        \\nnot found on '${clientTabName}' tab`
+      } else {
+        message = attempt.left.message;
+      }
+      Browser.msgBox(message);
+    }
+    return attempt;
+  }
+}
+
+
+function applyChanges(arg, iso8601d) {
+  const dataCollectionAttemp = optionalDataCollection(arg, iso8601d);
+  if (dataCollectionAttemp.left) return;
+  const results = dataCollectionAttemp.right;
   const originSheet = get.sheet('VI Subscriptions');
   const originM = originSheet.getDataRange().getValues().slice(1);
   const statusRegex = get.accountableStatusesRegex(get.sheet('credit exclusions'));
@@ -27,8 +52,10 @@ function applyChanges(results) {
 }
 
 //::{<CompanyName>:{subscriptions, agents, status}}
-function displayChanges(results) {
-  results = results || collectData({});
+function displayChanges(arg, iso8601d) {
+  const dataCollectionAttemp = optionalDataCollection(arg, iso8601d);
+  if (dataCollectionAttemp.left) return;
+  const results = dataCollectionAttemp.right;
   const originSheet = get.sheet('VI Subscriptions');
   const originM = originSheet.getDataRange().getValues().slice(1);
   //TODO: get columns from sources
@@ -67,22 +94,24 @@ function displayChanges(results) {
   }
 }
 
-function collectData({today = new Date(), status_sheet = get.sheet('accountable statuses'), adapter_sheet = get.sheet('adapters'),source_sheet = get.sheet('sources'), va_source_sheet = get.sheet('VA sources')} ) {
-  const todayIso8601d = today.toISOString().split('T')[0];
-  const year = today.getFullYear();
+function collectData({today, status_sheet = get.sheet('accountable statuses'), adapter_sheet = get.sheet('adapters'),source_sheet = get.sheet('sources'), va_source_sheet = get.sheet('VA sources')} ) {
+  const todayIso8601d = today;
+  const [year] = parseIso8601d(todayIso8601d);
   const statusesRegex = get.accountableStatusesRegex(status_sheet);
   const adapters = get.adapters(adapter_sheet);
   const zs = ssa.get_vh(source_sheet);
   const subMap = get.subscriptionMap({source_sheet, statusesRegex, adapters, year});
-
   let ss, url, x, sheet, tab;
   x = zs.filter(x => x['Department'] === 'VAS')[0];
   url = x['Url'];
   ss = SpreadsheetApp.openByUrl(url);
   const tz = ss.getSpreadsheetTimeZone();
   const xs = ssa.get_vh(va_source_sheet);
-  const vaMap = get.nameToVaMap(ss, xs, year, adapters).right;
-  //TODO: process failure
+  const result = get.nameToVaMap(ss, xs, year, adapters);
+  if (result.left) {
+    return result;
+  }
+  const vaMap = result.right;
   tab = x['Tab name'].replace('{{Year}}', year);
   sheet = ss.getSheetByName(tab);
   const statusMap = get.statusMap(sheet, x['Data row'], a1_to_n(x['Ancor column']) - 1, a1_to_n(x['Status column']) - 1, statusesRegex);
@@ -115,14 +144,13 @@ function collectData({today = new Date(), status_sheet = get.sheet('accountable 
     }
     res[company_name] = {subscriptions, agents, status : statusMap[company_name]};
   });
-  return res;
+  return {right: res}
 }
 
-function checkConsistency() {
+function checkConsistency(year = new Date().getFullYear()) {
   const ss = SpreadsheetApp.getActive();
   const statusesRegex = get.accountableStatusesRegex(get.sheet('accountable statuses'));
   const sheet = get.sheet('sources');
-  const year = new Date().getFullYear();
   const adapters = get.adapters(get.sheet('adapters'));
   const res = get.departmentsMap(sheet, adapters, year, statusesRegex);
   const {depMap, servicesCodesMap, pivotTableCodesMap } = res;

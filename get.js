@@ -59,14 +59,20 @@ get.originalMap = function(sources) {
 get.nameToVaMap = function(ss, xs, year, adapters) {
   let x, tab;
   x = xs.filter(x => x['Source name'] === 'assistants')[0];
-  tab = ss.getSheetByName(x['Tab'].replace('{{Year}}', year));
+  const assistantTabName = x['Tab'].replace('{{Year}}', year)
+  tab = ss.getSheetByName(assistantTabName);
   const tempVaMap = get.codeToVaMap(tab,x['Data row'] );
 
   x = xs.filter(x => x['Source name'] === 'clients')[0];
-  tab = ss.getSheetByName(x['Tab'].replace('{{Year}}', year));
+  const clientTabName = x['Tab'].replace('{{Year}}', year)
+  tab = ss.getSheetByName(clientTabName);
 
   const codeToNameMap = get.codeToNameMap(tab, x['Data row'], x['Code column'], x['Company column']);
-  return gen.nameToVaMap(tempVaMap, codeToNameMap, adapters['VAS']);
+  const res = gen.nameToVaMap(tempVaMap, codeToNameMap, adapters['VAS']);
+  if (res.left) {
+    res.left = {...res.left, ...{type: "VA", assistantTabName, clientTabName} }
+  }
+  return res;
 };
 
 get.codeToNameMap = function(client_sheet, data_row, code_column, company_column) {
@@ -104,7 +110,8 @@ get.departmentsMap = function(sheet, adapters, year, statusesRegex) {
   let pivotTableCodesMap = {};
   xs.forEach(x => {
     const ss = SpreadsheetApp.openByUrl(x['Url']);
-    const source_sheet = ss.getSheetByName(x['Tab name'].replace('{{Year}}', year));
+    const name = x['Tab name'].replace('{{Year}}', year);
+    const source_sheet = ss.getSheetByName(name);
     let m = source_sheet.getDataRange().getValues().slice(x['Data row'] - 1);
     if (!x['Pivot']) {
       m = m.filter(r => statusesRegex.test(r[1].trim()));
