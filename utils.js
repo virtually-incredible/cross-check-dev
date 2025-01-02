@@ -22,7 +22,7 @@ function validateDate(string) {
 }
 
 function castToIso8601d(date, tz) {
-  return Utilities.formatDate(date, tz, 'YYYY-MM-dd');
+  return Utilities.formatDate(date, tz, 'yyyy-MM-dd');
 }
 
 function ordinalSuffixOf(i) {

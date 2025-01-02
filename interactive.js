@@ -20,16 +20,11 @@ function onOpen() {
 }
 
 function process_changes(callback) {
-  const input = Browser.inputBox("Date input", "Enter processing date in format YYYY-MM-DD:", Browser.Buttons.OK_CANCEL);
-  if (input === 'cancel') return;
-  const parseRes = validateDate(input);
-  if (parseRes === null) {
-    SpreadsheetApp.getActive().toast("invalid date.", "Input error", 3);
-    return;
-  }
-  const [year] = parseRes.split("-").map(Number);
+  const today = new Date();
+  const year = today.getFullYear();
+  const iso8601d = to_iso8601(today);
   if (checkConsistency(year)) {
-    callback(null, parseRes);
+    callback(null, iso8601d);
   }
 }
 
