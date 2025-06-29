@@ -11,7 +11,7 @@ function test_validate_date() {
       ds.forEach((d, i) => {
         const res = validateDate(d);
         jUnit.assert_eq(d === res, rs[i]);
-      })
+      });
     }
   });
 }

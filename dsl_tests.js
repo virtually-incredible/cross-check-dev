@@ -18,7 +18,7 @@ function test_collect_data() {
       const status_sheet = tt.ds('0.2');
       const adapter_sheet = tt.ds('0.5');
       const today = new Date('2024/05/30');
-      const res = collectData({today, status_sheet, adapter_sheet, source_sheet}).right
+      const res = collectData({today, status_sheet, adapter_sheet, source_sheet}).right;
 
       jUnit.assert_eq_num(3, res['Home Property Management'].agents);
       jUnit.assert_eq('PT+VSS+VAS', res['Home Property Management'].subscriptions);

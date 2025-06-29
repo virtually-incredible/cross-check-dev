@@ -1,5 +1,5 @@
 function parseIso8601d(s) {
-  return s.split("-").map(Number)
+  return s.split("-").map(Number);
 }
 
 function validateDate(string) {
@@ -16,7 +16,7 @@ function validateDate(string) {
   if (day < 1 || day > 31) return null;
   const date = new Date(year, month - 1, day);
   if (year === date.getFullYear() && month === date.getMonth() + 1 && day === date.getDate()) {
-    return `${year}-${lz(month)}-${lz(day)}`
+    return `${year}-${lz(month)}-${lz(day)}`;
   }
   return null;
 }
@@ -193,7 +193,7 @@ div = function(x, n) {return Math.floor(x / n);};
 l4z = function(x) {return ('000' + x).substr(-4);};
 
 //::String->String
-lz = function(x) {return x.toString().padStart(2, '0')};
+lz = function(x) {return x.toString().padStart(2, '0');};
 
 function trim(x) {return x.trim();}
 

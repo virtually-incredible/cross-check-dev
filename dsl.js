@@ -1,8 +1,8 @@
 function optionalDataCollection(arg, iso8601d) {
   if (arg) {
-    return {right: arg}
+    return {right : arg};
   } else {
-    var attempt = collectData({today:iso8601d});
+    var attempt = collectData({today : iso8601d});
     if (attempt.left) {
       let message;
       const {type, data, assistantTabName, clientTabName} = attempt.left;
@@ -10,7 +10,7 @@ function optionalDataCollection(arg, iso8601d) {
         message = `
         VA service error:
         \\nfollowing codes from '${assistantTabName}' \\n ${attempt.left.data.join("\\n")}
-        \\nnot found on '${clientTabName}' tab`
+        \\nnot found on '${clientTabName}' tab`;
       } else {
         message = attempt.left.message;
       }
@@ -19,7 +19,6 @@ function optionalDataCollection(arg, iso8601d) {
     return attempt;
   }
 }
-
 
 function applyChanges(arg, iso8601d) {
   const dataCollectionAttemp = optionalDataCollection(arg, iso8601d);
@@ -144,7 +143,7 @@ function collectData({today, status_sheet = get.sheet('accountable statuses'), a
     }
     res[company_name] = {subscriptions, agents, status : statusMap[company_name]};
   });
-  return {right: res}
+  return {right : res};
 }
 
 function checkConsistency(year = new Date().getFullYear()) {
