@@ -1,14 +1,19 @@
 const gen = {};
 
-gen.vaPlacementDates = function(vaMap, companyName, tz) {
+gen.vaPlacementDates = function (vaMap, companyName, tz) {
   const data = vaMap[companyName];
   if (data) {
-    return data.map((x, i) => `${ordinalSuffixOf(i + 1)}: ${Utilities.formatDate(x.date, tz, 'M/d/yyyy')}`).join('\n');
+    return data
+      .map(
+        (x, i) =>
+          `${ordinalSuffixOf(i + 1)}: ${Utilities.formatDate(x.date, tz, 'M/d/yyyy')}`
+      )
+      .join('\n');
   } else return [];
 };
 
 //::CodeToVAMap->CodeToNameMap->Either Error NameToVaMap
-gen.nameToVaMap = function(codeToVaMap, codeToNameMap, aliases) {
+gen.nameToVaMap = function (codeToVaMap, codeToNameMap, aliases) {
   const vaMap = {};
   const absent = [];
   for (const code in codeToVaMap) {
@@ -20,5 +25,7 @@ gen.nameToVaMap = function(codeToVaMap, codeToNameMap, aliases) {
       absent.push(code);
     }
   }
-  return absent.length ? {left : {message : 'some codes absent in clients list', data : absent}} : {right : vaMap};
+  return absent.length
+    ? { left: { message: 'some codes absent in clients list', data: absent } }
+    : { right: vaMap };
 };

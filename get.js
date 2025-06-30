@@ -26,7 +26,7 @@ get.subscriptionMap = function ({
     source_sheet,
     adapters,
     year,
-    statusesRegex,
+    statusesRegex
   );
   const subMap = {};
   _.keys(pivotTableCodesMap).forEach((code) => {
@@ -42,11 +42,11 @@ get.subscriptionMap = function ({
 };
 
 get.vaMap = function (
-  source_sheet = get.sheet("sources"),
-  va_source_sheet = get.sheet("VA sources"),
+  source_sheet = get.sheet('sources'),
+  va_source_sheet = get.sheet('VA sources')
 ) {
   const zs = ssa.get_vh(source_sheet);
-  const url = zs.filter((x) => x["Department"] === "VAS")[0]["Url"];
+  const url = zs.filter((x) => x['Department'] === 'VAS')[0]['Url'];
   const ss = SpreadsheetApp.openByUrl(url);
   const xs = ssa.get_vh(va_source_sheet);
   const attempt = get.nameToVaMap(ss, xs, year, adapters);
@@ -54,21 +54,21 @@ get.vaMap = function (
 };
 
 get.originalMap = function (sources) {
-  const x = sources.filter((x) => x["Department"] === "HQ")[0];
-  const ss = SpreadsheetApp.openByUrl(x["Url"]);
-  const tab = ss.getSheetByName(x["Tab name"]);
-  const ancorIdx = a1_to_n(x["Ancor column"]) - 1;
-  const subIdx = a1_to_n(x["Subscriptions column"]) - 1;
-  const vaIdx = a1_to_n(x["Active VAs column"]) - 1;
+  const x = sources.filter((x) => x['Department'] === 'HQ')[0];
+  const ss = SpreadsheetApp.openByUrl(x['Url']);
+  const tab = ss.getSheetByName(x['Tab name']);
+  const ancorIdx = a1_to_n(x['Ancor column']) - 1;
+  const subIdx = a1_to_n(x['Subscriptions column']) - 1;
+  const vaIdx = a1_to_n(x['Active VAs column']) - 1;
   const res = {};
   const m = tab
     .getDataRange()
     .getValues()
-    .slice(x["Data row"] - 1);
+    .slice(x['Data row'] - 1);
   m.forEach((r) => {
     const ancor = r[ancorIdx].trim();
-    if (ancor !== "") {
-      res[ancor] = { subscriptions : r[subIdx], q_of_va : r[vaIdx] };
+    if (ancor !== '') {
+      res[ancor] = { subscriptions: r[subIdx], q_of_va: r[vaIdx] };
     }
   });
   return res;
@@ -77,26 +77,26 @@ get.originalMap = function (sources) {
 //::VASourceSheet->Year->Eihter Error NameToVaMap
 get.nameToVaMap = function (ss, xs, year, adapters) {
   let x, tab;
-  x = xs.filter((x) => x["Source name"] === "assistants")[0];
-  const assistantTabName = x["Tab"].replace("{{Year}}", year);
+  x = xs.filter((x) => x['Source name'] === 'assistants')[0];
+  const assistantTabName = x['Tab'].replace('{{Year}}', year);
   tab = ss.getSheetByName(assistantTabName);
-  const tempVaMap = get.codeToVaMap(tab, x["Data row"]);
+  const tempVaMap = get.codeToVaMap(tab, x['Data row']);
 
-  x = xs.filter((x) => x["Source name"] === "clients")[0];
-  const clientTabName = x["Tab"].replace("{{Year}}", year);
+  x = xs.filter((x) => x['Source name'] === 'clients')[0];
+  const clientTabName = x['Tab'].replace('{{Year}}', year);
   tab = ss.getSheetByName(clientTabName);
 
   const codeToNameMap = get.codeToNameMap(
     tab,
-    x["Data row"],
-    x["Code column"],
-    x["Company column"],
+    x['Data row'],
+    x['Code column'],
+    x['Company column']
   );
-  const res = gen.nameToVaMap(tempVaMap, codeToNameMap, adapters["VAS"]);
+  const res = gen.nameToVaMap(tempVaMap, codeToNameMap, adapters['VAS']);
   if (res.left) {
     res.left = {
       ...res.left,
-      ...{ type : "VA", assistantTabName, clientTabName },
+      ...{ type: 'VA', assistantTabName, clientTabName },
     };
   }
   return res;
@@ -106,7 +106,7 @@ get.codeToNameMap = function (
   client_sheet,
   data_row,
   code_column,
-  company_column,
+  company_column
 ) {
   const m = client_sheet
     .getDataRange()
@@ -127,11 +127,11 @@ get.codeToVaMap = function (va_sheet, data_row) {
   const vs = ssa.get_vh(va_sheet, data_row - 1);
   const tempVaMap = {};
   vs.forEach((x) => {
-    const code = x["Code"].trim();
-    if (code !== "") {
+    const code = x['Code'].trim();
+    if (code !== '') {
       blow(tempVaMap, code, []);
-      const name = x["VA Name\n(Full Name)"];
-      const date = x["VA Live Date"];
+      const name = x['VA Name\n(Full Name)'];
+      const date = x['VA Live Date'];
       tempVaMap[code].push({ name, date });
     }
   });
@@ -144,24 +144,24 @@ get.departmentsMap = function (sheet, adapters, year, statusesRegex) {
   let servicesCodesMap = {};
   let pivotTableCodesMap = {};
   xs.forEach((x) => {
-    const ss = SpreadsheetApp.openByUrl(x["Url"]);
-    const name = x["Tab name"].replace("{{Year}}", year);
+    const ss = SpreadsheetApp.openByUrl(x['Url']);
+    const name = x['Tab name'].replace('{{Year}}', year);
     const source_sheet = ss.getSheetByName(name);
     let m = source_sheet
       .getDataRange()
       .getValues()
-      .slice(x["Data row"] - 1);
-    if (!x["Pivot"]) {
+      .slice(x['Data row'] - 1);
+    if (!x['Pivot']) {
       m = m.filter((r) => statusesRegex.test(r[1].trim()));
     }
-    const idx = a1_to_n(x["Ancor column"]) - 1;
-    let ps = m.map((r, i) => [r[idx].trim(), i]).filter((p) => p[0] !== "");
-    if (x["Pivot"]) {
+    const idx = a1_to_n(x['Ancor column']) - 1;
+    let ps = m.map((r, i) => [r[idx].trim(), i]).filter((p) => p[0] !== '');
+    if (x['Pivot']) {
       const codesMap = _.object(ps);
       pivotTableCodesMap = codesMap;
     } else {
-      const sheetName = x["Spreadsheet name"];
-      const dep = x["Department"];
+      const sheetName = x['Spreadsheet name'];
+      const dep = x['Department'];
       ps = ps.map((p) => {
         if (adapters[dep]) {
           const code = adapters[dep][p[0]];
@@ -180,19 +180,19 @@ get.departmentsMap = function (sheet, adapters, year, statusesRegex) {
 };
 
 get.accountableStatuses = function (sheet) {
-  return _.unzip(sheet.getRange("A1:A").getValues())[0].filter((x) => x);
+  return _.unzip(sheet.getRange('A1:A').getValues())[0].filter((x) => x);
 };
 
 get.accountableStatusesRegex = function (sheet) {
-  const v = _.unzip(sheet.getRange("A1:A").getValues())[0]
+  const v = _.unzip(sheet.getRange('A1:A').getValues())[0]
     .filter((x) => x)
     .map((x) => `^${x.trim()}$`);
-  return new RegExp(v.join("|"), "i");
+  return new RegExp(v.join('|'), 'i');
 };
 
 get.sourcesMap = function (sheet) {
   const xs = ssa.get_vh(sheet);
-  return vh_to_hh(xs, "Department");
+  return vh_to_hh(xs, 'Department');
 };
 
 get.adapters = function (sheet) {
@@ -221,7 +221,7 @@ get.sheet = function (name) {
 
 get.config = function () {
   var sheet, m, res;
-  sheet = SpreadsheetApp.getActive().getSheetByName("config");
+  sheet = SpreadsheetApp.getActive().getSheetByName('config');
   m = sheet.getDataRange().getValues().slice(1);
   res = {};
   m.forEach(function (r) {
