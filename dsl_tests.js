@@ -1,12 +1,13 @@
 function dsl_module_tests() {
-  return;
+  return test_check_consistency()
+   && test_collect_data();
 
 }
 
 function test_check_consistency() {
   return jUnit.test_case('', {
     'test checking consistency' : function() {
-      checkConsistency(2024);
+      jUnit.assert_false(checkConsistency(2024, true));
     }
   });
 }
@@ -17,7 +18,7 @@ function test_collect_data() {
       const source_sheet = tt.ds('0.6');
       const status_sheet = tt.ds('0.2');
       const adapter_sheet = tt.ds('0.5');
-      const today = new Date('2024/05/30');
+      const today = '2024-05-30';
       const res = collectData({today, status_sheet, adapter_sheet, source_sheet}).right;
 
       jUnit.assert_eq_num(3, res['Home Property Management'].agents);

@@ -62,11 +62,12 @@ function test_get_name_to_va_map() {
       const ss = SpreadsheetApp.openByUrl(url);
       const sheet = get.sheet('VA sources');
       const xs = ssa.get_vh(sheet);
-      const adapters = get.adapters(tt.ds('0.5'));
+      const adapters = get.adapters(tt.ds('0.8'));
       const res = get.nameToVaMap(ss, xs, 2024, adapters);
       jUnit.assert_true(res.right);
       jUnit.assert_eq_num(3, res.right['Home Property Management'].length);
-      jUnit.assert_eq_num(2, res.right['Platinum Holdings'].length);//adapter must be applied
+      jUnit.assert_eq_num(1, res.right['Platinum Holdings'].length);
+      jUnit.assert_eq_num(5, res.right['KAG'].length);//adapter must be applied
     }
   });
 }

@@ -146,7 +146,7 @@ function collectData({today, status_sheet = get.sheet('accountable statuses'), a
   return {right : res};
 }
 
-function checkConsistency(year = new Date().getFullYear()) {
+function checkConsistency(year = new Date().getFullYear(), suppress_output = false) {
   const ss = SpreadsheetApp.getActive();
   const statusesRegex = get.accountableStatusesRegex(get.sheet('accountable statuses'));
   const sheet = get.sheet('sources');
@@ -166,12 +166,14 @@ function checkConsistency(year = new Date().getFullYear()) {
     const link = (sourcesMap[depName]['Url']);
     return [`=HYPERLINK("${link}", "${r[0]}")`, company_name, adapters[company_name]];
   });
-  const dest_sheet = get.sheet('consistency');
-  dest_sheet.clear();
-  m_.unshift(['Tracker', 'Company name', 'Adapter']);
-  dest_sheet.getRange(1, 1, m_.length, m_[0].length).setValues(m_);
   if (m_.length > 1) {
-    ss.toast('Some inconsistency in company names detected. Please check "consistency" tab');
+    if (!suppress_output) {
+      const dest_sheet = get.sheet('consistency');
+      dest_sheet.clear();
+      m_.unshift(['Tracker', 'Company name', 'Adapter']);
+      dest_sheet.getRange(1, 1, m_.length, m_[0].length).setValues(m_);
+      ss.toast('Some inconsistency in company names detected. Please check "consistency" tab');
+    }
     return false;
   } else {
     return true;

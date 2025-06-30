@@ -1,6 +1,5 @@
 function utils_module_tests() {
-  return;
-
+  return test_validate_date();
 }
 
 function test_validate_date() {
