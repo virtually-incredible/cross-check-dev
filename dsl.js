@@ -109,6 +109,7 @@ function collectData({
   adapter_sheet = get.sheet('adapters'),
   source_sheet = get.sheet('sources'),
   va_source_sheet = get.sheet('VA sources'),
+  pivotNumber = 1,
 }) {
   const todayIso8601d = today;
   const [year] = parseIso8601d(todayIso8601d);
@@ -120,6 +121,7 @@ function collectData({
     statusesRegex,
     adapters,
     year,
+    pivotNumber,
   });
   let ss, url, x, sheet, tab;
   x = zs.filter((x) => x['Department'] === 'VAS')[0];
@@ -142,7 +144,8 @@ function collectData({
     statusesRegex
   );
 
-  x = zs.filter((x) => x['Department'] === 'HQ')[0];
+  x = zs.filter((x) => x['Department'] === 'HQ')[pivotNumber - 1];
+  // console.log(x)
   tab = x['Tab name'];
   ss = SpreadsheetApp.openByUrl(x['Url']);
   sheet = ss.getSheetByName(tab);
@@ -184,7 +187,8 @@ function collectData({
 
 function checkConsistency(
   year = new Date().getFullYear(),
-  suppress_output = false
+  suppress_output = false,
+  pivotNumber = 1
 ) {
   const ss = SpreadsheetApp.getActive();
   const statusesRegex = get.accountableStatusesRegex(
@@ -192,7 +196,13 @@ function checkConsistency(
   );
   const sheet = get.sheet('sources');
   const adapters = get.adapters(get.sheet('adapters'));
-  const res = get.departmentsMap(sheet, adapters, year, statusesRegex);
+  const res = get.departmentsMap(
+    sheet,
+    adapters,
+    year,
+    statusesRegex,
+    pivotNumber
+  );
   const { depMap, servicesCodesMap, pivotTableCodesMap } = res;
   const m = _.keys(servicesCodesMap)
     .map((serviceName) => {

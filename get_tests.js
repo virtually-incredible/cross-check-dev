@@ -12,6 +12,7 @@ function get_module_tests() {
 function test_get_subscription_map() {
   return jUnit.test_case('', {
     'test getting subscription map': function () {
+      var res;
       const source_sheet = tt.ds('0.6');
       const status_sheet = tt.ds('0.2');
       const adapter_sheet = tt.ds('0.5');
@@ -22,7 +23,7 @@ function test_get_subscription_map() {
       const PT_ONLY = ['PT'];
       const VSS_ONLY = ['VSS'];
       const VAS_ONLY = ['VAS'];
-      const res = get.subscriptionMap({
+      res = get.subscriptionMap({
         source_sheet,
         statusesRegex,
         adapters,
@@ -49,6 +50,19 @@ function test_get_subscription_map() {
         0,
         _.difference(res['Pointer Ridge Management'], VAS_ONLY).length
       );
+
+      res = get.subscriptionMap({
+        source_sheet,
+        statusesRegex,
+        adapters,
+        year: 2024,
+        pivotNumber: 2,
+      });
+      jUnit.assert_eq_num(
+        0,
+        _.difference(res['RPM Palm Beach County'], PT_ONLY).length
+      );
+      jUnit.assert_eq_num(0, _.difference(res['AW Manage'], FULL_SUB).length);
     },
   });
 }
@@ -127,23 +141,30 @@ function test_get_code_to_va_map() {
 function test_get_departments_map() {
   return jUnit.test_case('', {
     'test getting department map': function () {
+      var res;
       const sheet = tt.ds('0.1');
       const adapters = get.adapters(get.sheet('adapters'));
       const accountableStatusesRegex = get.accountableStatusesRegex(
         tt.ds('0.2')
       );
-      const res = get.departmentsMap(
-        sheet,
-        adapters,
-        2024,
-        accountableStatusesRegex
-      );
+      res = get.departmentsMap(sheet, adapters, 2024, accountableStatusesRegex);
       jUnit.assert_eq(3, _.keys(res['servicesCodesMap']).length);
       jUnit.assert_eq_num(
         0,
         res['servicesCodesMap']['PHONE TENDERS CLIENT LIST'][
           'Home Property Management'
         ]
+      );
+      res = get.departmentsMap(
+        sheet,
+        adapters,
+        2024,
+        accountableStatusesRegex,
+        2
+      );
+      jUnit.assert_eq_num(
+        262,
+        res['pivotTableCodesMap']['One Source Affiliates']
       );
     },
   });

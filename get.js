@@ -21,12 +21,14 @@ get.subscriptionMap = function ({
   statusesRegex,
   adapters,
   year,
+  pivotNumber,
 }) {
   const { depMap, servicesCodesMap, pivotTableCodesMap } = get.departmentsMap(
     source_sheet,
     adapters,
     year,
-    statusesRegex
+    statusesRegex,
+    pivotNumber
   );
   const subMap = {};
   _.keys(pivotTableCodesMap).forEach((code) => {
@@ -138,7 +140,13 @@ get.codeToVaMap = function (va_sheet, data_row) {
   return tempVaMap;
 };
 
-get.departmentsMap = function (sheet, adapters, year, statusesRegex) {
+get.departmentsMap = function (
+  sheet,
+  adapters,
+  year,
+  statusesRegex,
+  pivotNumber = 1
+) {
   const xs = ssa.get_vh(sheet);
   const depMap = {};
   let servicesCodesMap = {};
@@ -156,10 +164,10 @@ get.departmentsMap = function (sheet, adapters, year, statusesRegex) {
     }
     const idx = a1_to_n(x['Ancor column']) - 1;
     let ps = m.map((r, i) => [r[idx].trim(), i]).filter((p) => p[0] !== '');
-    if (x['Pivot']) {
+    if (x['Pivot'] && x['Pivot'] === pivotNumber) {
       const codesMap = _.object(ps);
       pivotTableCodesMap = codesMap;
-    } else {
+    } else if (!x['Pivot']) {
       const sheetName = x['Spreadsheet name'];
       const dep = x['Department'];
       ps = ps.map((p) => {

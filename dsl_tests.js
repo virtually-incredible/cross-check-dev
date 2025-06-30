@@ -13,11 +13,25 @@ function test_check_consistency() {
 function test_collect_data() {
   return jUnit.test_case('', {
     'test collecting overall data': function () {
+      var res;
       const source_sheet = tt.ds('0.6');
       const status_sheet = tt.ds('0.2');
       const adapter_sheet = tt.ds('0.5');
       const today = '2024-05-30';
-      const res = collectData({
+
+      res = collectData({
+        today,
+        status_sheet,
+        adapter_sheet,
+        source_sheet,
+        pivotNumber: 2,
+      }).right;
+      jUnit.assert_eq(
+        'PT+VSS+VAS',
+        res['Home Property Management'].subscriptions
+      );
+
+      res = collectData({
         today,
         status_sheet,
         adapter_sheet,
