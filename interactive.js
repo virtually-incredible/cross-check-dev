@@ -8,6 +8,10 @@ function onOpen() {
   var submenu = [
     { name: 'Get changes', functionName: 'get_changes' },
     { name: 'Apply changes', functionName: 'apply_changes' },
+    {
+      name: 'Check billing consistency',
+      functionName: 'check_billing_consistency',
+    },
   ];
   if (dev) {
     submenu.push({ name: '-- Restore backup', functionName: 'restoreBackup' });
@@ -22,6 +26,13 @@ function onOpen() {
   }
 
   SpreadsheetApp.getActiveSpreadsheet().addMenu('More actions', submenu);
+}
+
+function check_billing_consistency() {
+  const today = new Date();
+  const year = today.getFullYear();
+  var source_sheet = get.sheet('sources');
+  checkConsistency(source_sheet, year, false, 2);
 }
 
 function process_changes(callback) {
