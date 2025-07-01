@@ -5,7 +5,8 @@ function dsl_module_tests() {
 function test_check_consistency() {
   return jUnit.test_case('', {
     'test checking consistency': function () {
-      jUnit.assert_false(checkConsistency(2024, true));
+      var source_sheet = tt.ds('0.1');
+      jUnit.assert_false(checkConsistency(source_sheet, 2024, true));
     },
   });
 }

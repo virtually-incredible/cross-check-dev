@@ -186,6 +186,7 @@ function collectData({
 }
 
 function checkConsistency(
+  source_sheet,
   year = new Date().getFullYear(),
   suppress_output = false,
   pivotNumber = 1
@@ -194,10 +195,9 @@ function checkConsistency(
   const statusesRegex = get.accountableStatusesRegex(
     get.sheet('accountable statuses')
   );
-  const sheet = get.sheet('sources');
   const adapters = get.adapters(get.sheet('adapters'));
   const res = get.departmentsMap(
-    sheet,
+    source_sheet,
     adapters,
     year,
     statusesRegex,
@@ -215,7 +215,7 @@ function checkConsistency(
         .map((p) => p.slice(1));
     })
     .flat();
-  const sourcesMap = get.sourcesMap(sheet);
+  const sourcesMap = get.sourcesMap(source_sheet);
   const m_ = m.map((r) => {
     const depName = depMap[r[0]];
     const company_name = r[1].trim();

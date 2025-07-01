@@ -25,10 +25,11 @@ function onOpen() {
 }
 
 function process_changes(callback) {
+  var source_sheet = get.sheet('sources');
   const today = new Date();
   const year = today.getFullYear();
   const iso8601d = to_iso8601(today);
-  if (checkConsistency(year)) {
+  if (checkConsistency(source_sheet, year)) {
     callback(null, iso8601d);
   }
 }
