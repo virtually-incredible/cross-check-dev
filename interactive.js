@@ -4,7 +4,7 @@ function testRun() {
 
 function onOpen() {
   const scriptProperties = PropertiesService.getScriptProperties();
-  const dev = scriptProperties.getProperty('dev');
+  const dev = Number(scriptProperties.getProperty('dev'));
   var submenu = [
     { name: 'Get changes', functionName: 'get_changes' },
     { name: 'Apply changes', functionName: 'apply_changes' },
