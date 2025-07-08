@@ -20,11 +20,10 @@ function optionalDataCollection(arg, iso8601d) {
   }
 }
 
-function applyChanges(arg, iso8601d) {
+function applyChanges(arg, iso8601d, originSheet) {
   const dataCollectionAttemp = optionalDataCollection(arg, iso8601d);
   if (dataCollectionAttemp.left) return;
   const results = dataCollectionAttemp.right;
-  const originSheet = get.sheet('VI Subscriptions');
   const originM = originSheet.getDataRange().getValues().slice(1);
   const statusRegex = get.accountableStatusesRegex(
     get.sheet('credit exclusions')
@@ -59,11 +58,10 @@ function applyChanges(arg, iso8601d) {
 }
 
 //::{<CompanyName>:{subscriptions, agents, status}}
-function displayChanges(arg, iso8601d) {
+function displayChanges(arg, iso8601d, originSheet) {
   const dataCollectionAttemp = optionalDataCollection(arg, iso8601d);
   if (dataCollectionAttemp.left) return;
   const results = dataCollectionAttemp.right;
-  const originSheet = get.sheet('VI Subscriptions');
   const originM = originSheet.getDataRange().getValues().slice(1);
   //TODO: get columns from sources
   const subIdx = a1_to_n('E') - 1;
