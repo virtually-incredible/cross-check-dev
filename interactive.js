@@ -12,6 +12,10 @@ function onOpen() {
       name: 'Check billing consistency',
       functionName: 'check_billing_consistency',
     },
+    {
+      name: 'Get billing changes',
+      functionName: 'displayBillingChanges',
+    },
   ];
   if (dev) {
     submenu.push({ name: '-- Restore backup', functionName: 'restoreBackup' });
