@@ -59,6 +59,8 @@ function applyChanges(arg, iso8601d, originSheet) {
 
 //::{<CompanyName>:{subscriptions, agents, status}}
 function displayChanges(arg, iso8601d, originSheet) {
+  const dest_sheet = get.sheet('changes');
+  clearData(dest_sheet);
   const dataCollectionAttemp = optionalDataCollection(arg, iso8601d);
   if (dataCollectionAttemp.left) return;
   const results = dataCollectionAttemp.right;
@@ -91,11 +93,6 @@ function displayChanges(arg, iso8601d, originSheet) {
       return changed ? res : null;
     })
     .filter((x) => x);
-  const dest_sheet = get.sheet('changes');
-  const last_row = dest_sheet.getLastRow();
-  if (last_row > 1) {
-    dest_sheet.getRange(2, 1, last_row - 1, dest_sheet.getLastColumn()).clear();
-  }
   if (m.length > 0) {
     dest_sheet.getRange(2, 1, m.length, m[0].length).setValues(m);
   }
@@ -189,6 +186,8 @@ function checkConsistency(
   suppress_output = false,
   pivotNumber = 1
 ) {
+  const dest_sheet = get.sheet('consistency');
+  clearData(dest_sheet);
   const ss = SpreadsheetApp.getActive();
   const statusesRegex = get.accountableStatusesRegex(
     get.sheet('accountable statuses')
@@ -226,8 +225,6 @@ function checkConsistency(
   });
   if (m_.length > 1) {
     if (!suppress_output) {
-      const dest_sheet = get.sheet('consistency');
-      dest_sheet.clear();
       m_.unshift(['Tracker', 'Company name', 'Adapter']);
       dest_sheet.getRange(1, 1, m_.length, m_[0].length).setValues(m_);
       ss.toast(

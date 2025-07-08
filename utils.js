@@ -1,3 +1,10 @@
+function clearData(dest_sheet) {
+  const last_row = dest_sheet.getLastRow();
+  if (last_row > 1) {
+    dest_sheet.getRange(2, 1, last_row - 1, dest_sheet.getLastColumn()).clear();
+  }
+}
+
 function parseIso8601d(s) {
   return s.split('-').map(Number);
 }
