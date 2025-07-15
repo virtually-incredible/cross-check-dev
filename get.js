@@ -1,5 +1,10 @@
 var get = {};
 
+get.billingIgnore = function (sheet = get.sheet('billing ignore')) {
+  var m = sheet.getDataRange().getValues();
+  return _.unzip(m)[0];
+};
+
 get.statusMap = function (sheet, data_row, ancor_idx, status_idx, statusRegex) {
   const m = sheet
     .getDataRange()

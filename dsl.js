@@ -15,7 +15,7 @@ function displayBillingChanges() {
   const originSheet = SpreadsheetApp.openByUrl(x['Url']).getSheetByName(
     x['Tab name']
   );
-
+  var ignoreList = get.billingIgnore();
   const originM = originSheet.getDataRange().getValues().slice(2);
   const subIdx = a1_to_n('D') - 1;
   const m = originM
@@ -34,7 +34,7 @@ function displayBillingChanges() {
       }
       return changed ? res : null;
     })
-    .filter((x) => x);
+    .filter((x) => x && ignoreList.indexOf(x['1']) < 0);
   if (m.length > 0) {
     dest_sheet.getRange(2, 1, m.length, m[0].length).setValues(m);
   }

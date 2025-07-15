@@ -5,8 +5,21 @@ function get_module_tests() {
     test_get_departments_map() &&
     test_get_code_to_va_map() &&
     test_get_code_to_name_map() &&
-    test_get_name_to_va_map()
+    test_get_name_to_va_map() &&
+    test_get_billing_ignore()
   );
+}
+
+function test_get_billing_ignore() {
+  return jUnit.test_case('', {
+    'test getting billing statuses to ignore': function () {
+      var sheet = tt.ds('0.9');
+      var res = get.billingIgnore(sheet);
+      jUnit.assert_eq_num(2, res.length);
+      jUnit.assert_eq('NEW Cancellation', res[0]);
+      jUnit.assert_eq('INACTIVE', res[1]);
+    },
+  });
 }
 
 function test_get_subscription_map() {
