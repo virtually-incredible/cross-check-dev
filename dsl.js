@@ -1,3 +1,19 @@
+function applyBillingChanges(dataMap, ignoreList, destSheet) {
+  var originM = destSheet.getDataRange().getValues().slice(2);
+  var subPos = a1_to_n('D');
+  var companyNameIndex = a1_to_n('B') - 1;
+  originM.forEach((r, i) => {
+    const companyName = r[companyNameIndex].trim();
+    var statusPos = destSheet.getRange(i + 2 + 1, subPos);
+    var oldStatus = statusPos.getValue().trim();
+    if (companyName === '' || ignoreList.indexOf(oldStatus) > -1) return null;
+    var newStatus = dataMap[companyName]?.subscriptions;
+    if (newStatus !== undefined) {
+      statusPos.setValue(newStatus);
+    }
+  });
+}
+
 function displayBillingChanges() {
   const dest_sheet = get.sheet('billing changes');
   clearData(dest_sheet);

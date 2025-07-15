@@ -16,6 +16,10 @@ function onOpen() {
       name: 'Get billing changes',
       functionName: 'displayBillingChanges',
     },
+    {
+      name: 'Apply billing changes',
+      functionName: 'apply_billing_changes',
+    },
   ];
   if (dev) {
     submenu.push({ name: '-- Restore backup', functionName: 'restoreBackup' });
@@ -30,6 +34,24 @@ function onOpen() {
   }
 
   SpreadsheetApp.getActiveSpreadsheet().addMenu('More actions', submenu);
+}
+
+function apply_billing_changes() {
+  var today = new Date();
+  var iso8601d = to_iso8601(today);
+  var attempt = collectData({ today: iso8601d, pivotNumber: 2 });
+  if (attempt.left) {
+    console.log(attempt.left);
+    return;
+  }
+  var dataMap = attempt.right;
+  var source_sheet = get.sheet('sources');
+  var x = ssa.get_vh(source_sheet).filter((x) => x['Pivot'] === 2)[0];
+  const destSheet = SpreadsheetApp.openByUrl(x['Url']).getSheetByName(
+    x['Tab name']
+  );
+  var ignoreList = get.billingIgnore();
+  applyBillingChanges(dataMap, ignoreList, destSheet);
 }
 
 function check_billing_consistency() {

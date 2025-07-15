@@ -2,6 +2,30 @@ function dsl_module_tests() {
   return test_check_consistency() && test_collect_data();
 }
 
+function test_apply_billing_changes() {
+  return jUnit.test_case('', {
+    'test applying billing changes': function () {
+      var source_sheet = tt.ds('0.10');
+      var dest_sheet = tt.tb('0.1');
+      var m = source_sheet.getDataRange().getValues();
+      dest_sheet.clear();
+      dest_sheet.getRange(1, 1, m.length, m[0].length).setValues(m);
+      var cell1 = dest_sheet.getRange('D245');
+      var cell2 = dest_sheet.getRange('D248');
+      jUnit.assert_eq('PT', cell1.getValue());
+      jUnit.assert_eq('Still in OnB', cell2.getValue());
+      var subscriptionMap = {
+        'Haven Property Management by Ginger and Co': { subscriptions: '' },
+        'Florida Agri Management': { subscriptions: 'VAS' },
+        'Pioneer Management OR': { subscriptions: 'XXX' },
+      };
+      applyBillingChanges(subscriptionMap, ['INACTIVE'], dest_sheet);
+      jUnit.assert_eq('', cell1.getValue());
+      jUnit.assert_eq('VAS', cell2.getValue());
+    },
+  });
+}
+
 function test_check_consistency() {
   return jUnit.test_case('', {
     'test checking consistency': function () {
