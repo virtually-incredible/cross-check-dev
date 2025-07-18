@@ -36,6 +36,14 @@ function onOpen() {
   SpreadsheetApp.getActiveSpreadsheet().addMenu('More actions', submenu);
 }
 
+function display_billing_changes() {
+  process_billing_changes(displayBillingChanges);
+}
+
+function apply_billing_changes() {
+  process_billing_changes(applyBillingChanges);
+}
+
 function process_billing_changes(callback) {
   var source_sheet = get.sheet('sources');
   var x = ssa.get_vh(source_sheet).filter((x) => x['Pivot'] === 2)[0];
@@ -55,43 +63,6 @@ function process_billing_changes(callback) {
   if (true || checkConsistency(source_sheet, year, false, 2)) {
     callback(dataMap, ignoreList, originSheet);
   }
-}
-
-
-function apply_billing_changes() {
-  var today = new Date();
-  var iso8601d = to_iso8601(today);
-  var attempt = collectData({ today: iso8601d, pivotNumber: 2 });
-  if (attempt.left) {
-    console.log(attempt.left);
-    return;
-  }
-  var dataMap = attempt.right;
-  var source_sheet = get.sheet('sources');
-  var x = ssa.get_vh(source_sheet).filter((x) => x['Pivot'] === 2)[0];
-  const destSheet = SpreadsheetApp.openByUrl(x['Url']).getSheetByName(
-    x['Tab name']
-  );
-  var ignoreList = get.billingIgnore();
-  applyBillingChanges(dataMap, ignoreList, destSheet);
-}
-
-function display_billing_changes() {
-  var today = new Date();
-  var iso8601d = to_iso8601(today);
-  var attempt = collectData({ today: iso8601d, pivotNumber: 2 });
-  if (attempt.left) {
-    console.log(attempt.left);
-    return;
-  }
-  var dataMap = attempt.right;
-  var source_sheet = get.sheet('sources');
-  var x = ssa.get_vh(source_sheet).filter((x) => x['Pivot'] === 2)[0];
-  const destSheet = SpreadsheetApp.openByUrl(x['Url']).getSheetByName(
-    x['Tab name']
-  );
-  var ignoreList = get.billingIgnore();
-  displayBillingChanges(dataMap, ignoreList, destSheet);
 }
 
 function check_billing_consistency(source_sheet) {
