@@ -14,25 +14,10 @@ function applyBillingChanges(dataMap, ignoreList, destSheet) {
   });
 }
 
-function displayBillingChanges() {
+function displayBillingChanges(dataMap, ignoreList, destSheet) {
   const dest_sheet = get.sheet('billing changes');
   clearData(dest_sheet);
-  const today = new Date();
-  const iso8601d = to_iso8601(today);
-  var attempt = collectData({ today: iso8601d, pivotNumber: 2 });
-  if (attempt.left) {
-    console.log(attempt.left);
-    return;
-  }
-  var results = attempt.right;
-
-  var source_sheet = get.sheet('sources');
-  var x = ssa.get_vh(source_sheet).filter((x) => x['Pivot'] === 2)[0];
-  const originSheet = SpreadsheetApp.openByUrl(x['Url']).getSheetByName(
-    x['Tab name']
-  );
-  var ignoreList = get.billingIgnore();
-  const originM = originSheet.getDataRange().getValues().slice(2);
+  const originM = destSheet.getDataRange().getValues().slice(2);
   const subIdx = a1_to_n('D') - 1;
   const m = originM
     .map((r, i) => {
@@ -41,7 +26,7 @@ function displayBillingChanges() {
       let res = [company_name];
       let changed = false;
       const originSubscriptions = originM[i][subIdx].trim();
-      const currentSubscritions = results[company_name].subscriptions;
+      const currentSubscritions = dataMap[company_name].subscriptions;
       if (originSubscriptions !== currentSubscritions) {
         changed = true;
         res = res.concat([originSubscriptions, currentSubscritions]);
