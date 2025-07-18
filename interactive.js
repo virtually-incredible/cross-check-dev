@@ -36,6 +36,21 @@ function onOpen() {
   SpreadsheetApp.getActiveSpreadsheet().addMenu('More actions', submenu);
 }
 
+function process_billing_changes(callback) {
+  var source_sheet = get.sheet('sources');
+  var x = ssa.get_vh(source_sheet).filter((x) => x['Pivot'] === 2)[0];
+  const originSheet = SpreadsheetApp.openByUrl(x['Url']).getSheetByName(
+    x['Tab name']
+  );
+  const today = new Date();
+  const year = today.getFullYear();
+  const iso8601d = to_iso8601(today);
+
+  if (checkConsistency(source_sheet, year, false, 2)) {
+    callback(iso8601d, originSheet);
+  }
+}
+
 function apply_billing_changes() {
   var today = new Date();
   var iso8601d = to_iso8601(today);
@@ -54,7 +69,7 @@ function apply_billing_changes() {
   applyBillingChanges(dataMap, ignoreList, destSheet);
 }
 
-function check_billing_consistency() {
+function check_billing_consistency(source_sheet) {
   const today = new Date();
   const year = today.getFullYear();
   var source_sheet = get.sheet('sources');
