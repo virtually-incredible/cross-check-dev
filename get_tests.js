@@ -6,7 +6,11 @@ function get_module_tests() {
     test_get_code_to_va_map() &&
     test_get_code_to_name_map() &&
     test_get_name_to_va_map() &&
-    test_get_billing_ignore()
+    test_get_billing_ignore() &&
+    test_get_not_unique_fees() &&
+    test_get_subscription_map() &&
+    test_get_status_map() &&
+    test_get_original_map()
   );
 }
 
@@ -122,7 +126,6 @@ function test_get_original_map() {
     'test getting map of main tracker values': function () {
       const sources = ssa.get_vh(tt.ds('0.1'));
       const res = get.originalMap(sources);
-      clog(_.keys(res).length);
       jUnit.assert_eq_num(241, _.keys(res).length);
     },
   });
@@ -175,7 +178,7 @@ function test_get_departments_map() {
     'test getting department map': function () {
       var res;
       const sheet = tt.ds('0.1');
-      const adapters = get.adapters(get.sheet('adapters'));
+      const adapters = {};
       const accountableStatusesRegex = get.accountableStatusesRegex(
         tt.ds('0.2')
       );
@@ -183,7 +186,7 @@ function test_get_departments_map() {
       jUnit.assert_eq(3, _.keys(res['servicesCodesMap']).length);
       jUnit.assert_eq_num(
         0,
-        res['servicesCodesMap']['PHONE TENDERS CLIENT LIST'][
+        res['servicesCodesMap']['PHONE TENDERS CLIENT LIST dev'][
           'Home Property Management'
         ]
       );
@@ -195,8 +198,8 @@ function test_get_departments_map() {
         2
       );
       jUnit.assert_eq_num(
-        262,
-        res['pivotTableCodesMap']['One Source Affiliates']
+        273,
+        res['pivotTableCodesMap']['Pioneer Management OR']
       );
     },
   });
@@ -217,13 +220,9 @@ function test_get_asregex() {
 function test_get_adapters() {
   return jUnit.test_case('', {
     'test getting adapters': function () {
-      const sheet = get.sheet('adapters');
+      const sheet = tt.ds('0.8');
       const res = get.adapters(sheet);
-      jUnit.assert_eq(
-        'MTL Properties',
-        res['VSS']['Clover Hill Property Management']
-      );
-      jUnit.assert_eq('Platinum Holdings', res['VAS']['Arco Comfort Air LLC']);
+      jUnit.assert_eq('KAG', res['VAS']['Kelly and Grant']);
     },
   });
 }

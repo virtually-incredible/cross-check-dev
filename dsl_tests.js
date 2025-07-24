@@ -1,5 +1,9 @@
 function dsl_module_tests() {
-  return test_check_consistency() && test_collect_data();
+  return (
+    test_check_consistency() &&
+    test_collect_data() &&
+    test_apply_billing_changes()
+  );
 }
 
 function test_apply_billing_changes() {
