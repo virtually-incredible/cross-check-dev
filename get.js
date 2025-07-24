@@ -1,5 +1,23 @@
 var get = {};
 
+get.not_unique_fees = function (sheet = get.sheet('Billing')) {
+  var m = sheet
+    .getDataRange()
+    .getValues()
+    .slice(2)
+    .filter((r) => r[0].trim !== '');
+  var m_ = m.map((r) => {
+    var companyName = r[1].trim();
+    var v = r.slice(5, 8);
+    var notEmpty = v.filter((x) => x.toString().trim() !== '');
+    if (notEmpty.length > 1) {
+      return [companyName, 'More than one fee'];
+    }
+  });
+  var resM = m_.filter((x) => x);
+  return resM;
+};
+
 get.billingIgnore = function (sheet = get.sheet('billing ignore')) {
   var m = sheet.getDataRange().getValues();
   return _.unzip(m)[0];

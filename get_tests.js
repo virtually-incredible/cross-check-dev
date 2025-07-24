@@ -10,6 +10,25 @@ function get_module_tests() {
   );
 }
 
+function test_get_not_unique_fees() {
+  return jUnit.test_case('', {
+    'test getting fees that are not unique': function () {
+      var sheet = tt.ds('0.12');
+      var res = get.not_unique_fees(sheet);
+      jUnit.assert_eq_num(5, res.length);
+      jUnit.assert_eq('Home Property Management', res[0][0]);
+      jUnit.assert_eq('Qwest Property Management', res[1][0]);
+      jUnit.assert_eq('Key Renter Metro Property Management', res[2][0]);
+      jUnit.assert_eq('KRG Property Management LLC', res[3][0]);
+      jUnit.assert_eq('RPM TriState Area', res[4][0]);
+
+      sheet = tt.ds('0.10');
+      res = get.not_unique_fees(sheet);
+      jUnit.assert_eq_num(0, res.length);
+    },
+  });
+}
+
 function test_get_billing_ignore() {
   return jUnit.test_case('', {
     'test getting billing statuses to ignore': function () {

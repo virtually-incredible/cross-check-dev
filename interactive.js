@@ -20,6 +20,10 @@ function onOpen() {
       name: 'Apply billing changes',
       functionName: 'apply_billing_changes',
     },
+    {
+      name: 'Check fees',
+      functionName: 'check_fees',
+    },
   ];
   if (dev) {
     submenu.push({ name: '-- Restore backup', functionName: 'restoreBackup' });
@@ -34,6 +38,20 @@ function onOpen() {
   }
 
   SpreadsheetApp.getActiveSpreadsheet().addMenu('More actions', submenu);
+}
+
+function check_fees() {
+  var source_sheet = get.sheet('sources');
+  var x = ssa.get_vh(source_sheet).filter((x) => x['Pivot'] === 2)[0];
+  const originSheet = SpreadsheetApp.openByUrl(x['Url']).getSheetByName(
+    x['Tab name']
+  );
+  var destSheet = get.sheet('fees issues');
+  var m = get.not_unique_fees(originSheet);
+  destSheet.clear();
+  if (m.length > 0) {
+    destSheet.getRange(1, 1, m.length, m[0].length).setValues(m);
+  }
 }
 
 function display_billing_changes() {
