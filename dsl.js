@@ -63,7 +63,7 @@ function optionalDataCollection(arg, iso8601d) {
   }
 }
 
-function applyChanges(arg, iso8601d, originSheet) {
+function applyChanges(arg, iso8601d, originSheet, sourceRecord) {
   const dataCollectionAttemp = optionalDataCollection(arg, iso8601d);
   if (dataCollectionAttemp.left) return;
   const results = dataCollectionAttemp.right;
@@ -71,10 +71,9 @@ function applyChanges(arg, iso8601d, originSheet) {
   const statusRegex = get.accountableStatusesRegex(
     get.sheet('credit exclusions')
   );
-  //TODO: get columns from sources
-  const subCol = a1_to_n('E');
-  const vaCol = a1_to_n('H');
-  const vaCreditCol = a1_to_n('I');
+  const subCol = a1_to_n(sourceRecord['Subscriptions column']);
+  const vaCol = a1_to_n(sourceRecord['Active VAs column']);
+  const vaCreditCol = a1_to_n(sourceRecord['Credit Total column']);
   originM.forEach((r, i) => {
     const row = i + 2;
     const company_name = r[2].trim();
@@ -101,16 +100,17 @@ function applyChanges(arg, iso8601d, originSheet) {
 }
 
 //::{<CompanyName>:{subscriptions, agents, status}}
-function displayChanges(arg, iso8601d, originSheet) {
+function displayChanges(arg, iso8601d, originSheet, sourceRecord) {
   const dest_sheet = get.sheet('changes');
   clearData(dest_sheet);
   const dataCollectionAttemp = optionalDataCollection(arg, iso8601d);
   if (dataCollectionAttemp.left) return;
   const results = dataCollectionAttemp.right;
   const originM = originSheet.getDataRange().getValues().slice(1);
-  //TODO: get columns from sources
-  const subIdx = a1_to_n('E') - 1;
-  const vaIdx = a1_to_n('H') - 1;
+  const subCol = sourceRecord['Subscriptions column'];
+  const vaCol = sourceRecord['Active VAs column'];
+  const subIdx = a1_to_n(subCol) - 1;
+  const vaIdx = a1_to_n(vaCol) - 1;
   const m = originM
     .map((r, i) => {
       const company_name = r[2].trim();

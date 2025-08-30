@@ -100,7 +100,7 @@ function process_changes(callback) {
   const year = today.getFullYear();
   const iso8601d = to_iso8601(today);
   if (checkConsistency(source_sheet, year)) {
-    callback(null, iso8601d, originSheet);
+    callback(null, iso8601d, originSheet, x);
   }
 }
 
