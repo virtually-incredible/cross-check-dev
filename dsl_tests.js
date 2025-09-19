@@ -72,7 +72,7 @@ function test_collect_data() {
         'PT+VSS+VAS',
         res['Home Property Management'].subscriptions
       );
-      jUnit.assert_eq('Active', res['Home Property Management'].status);
+      jUnit.assert_eq('Active', res['Home Property Management'].va_status);
 
       jUnit.assert_eq_num(0, res['Verterra Property Management'].agents);
       jUnit.assert_eq(
@@ -81,12 +81,12 @@ function test_collect_data() {
       );
       jUnit.assert_eq(
         'Laggard Resumed',
-        res['Verterra Property Management'].status
+        res['Verterra Property Management'].va_status
       );
 
       jUnit.assert_eq_num(4, res['Suncoast Cooperative'].agents);
       jUnit.assert_eq('PT+VAS', res['Suncoast Cooperative'].subscriptions);
-      jUnit.assert_eq('Laggard Resumed', res['Suncoast Cooperative'].status);
+      jUnit.assert_eq('Laggard Resumed', res['Suncoast Cooperative'].va_status);
     },
   });
 }

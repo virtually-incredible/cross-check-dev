@@ -217,7 +217,7 @@ function collectData({
     res[company_name] = {
       subscriptions,
       agents,
-      status: statusMap[company_name],
+      va_status: statusMap[company_name],
     };
   });
   return { right: res };
